@@ -2,7 +2,9 @@
 layout: post
 title: "Nesting Stacks in Spine.js"
 date: 2012-04-17 23:55
-categories: ['CoffeeScript', 'Spine']
+categories: CoffeeScript Spine
+featured_image: /images/cover.jpg
+excerpt: "Spine.js is a simple and lightweight MVC framework in CoffeeScript. It has a nifty feature called 'Stacks', which I can't explain better than the documentation: Stacks are a way of grouping controllers, ensuring that only one controller is activated and displayed at any one time."
 ---
 [Spine.js](http://spinejs.com) is a simple and lightweight MVC framework in CoffeeScript. It has a nifty feature called 'Stacks', which I can't explain better than the documentation:
 
@@ -12,7 +14,9 @@ categories: ['CoffeeScript', 'Spine']
 If you aren't up to speed about Stacks and how to use them, I encourage you to read the [Spine documentation](http://spinejs.com/docs/stacks), it's really good.
 
 When I tried nesting Stacks, I ran into the problem that the correct controllers would not always activate. In this post I will discuss the setup in which this problem arises and provide my solution to it.
-<!-- more -->
+
+<!--more-->
+
 I used a `Root`-controller that would activate the separate sections of my application represented by their own controllers, in this example a `Resources` and a `Users` controller:
 
 {% gist 1852497 example_root.js.coffee %}
