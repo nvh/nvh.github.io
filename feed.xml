@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Code Coverage</title>
+    <description></description>
+    <link>http://blog.nvh.io/</link>
+    <atom:link href="http://blog.nvh.io/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Fri, 13 Feb 2015 19:50:22 +0100</pubDate>
+    <lastBuildDate>Fri, 13 Feb 2015 19:50:22 +0100</lastBuildDate>
+    <generator>Jekyll v2.4.0</generator>
+    
+      <item>
+        <title>Swift&#39;s enum as a DataSource state machine</title>
+        <description>&lt;p&gt;Last week at &lt;a href=&quot;http://www.dotswift.io&quot;&gt;dotSwift.io&lt;/a&gt;, two of the presentations contained a version of the following example of using associated values of Swift enumerations:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;enum&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Empty&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Loading&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;NSError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DataSource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;bla&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;test&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;!--more--&gt;
+
+&lt;p&gt;This is nice&lt;sup id=&quot;fnref:1&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;, because it can replace the separate variables for keeping state and the data associated with it:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DataSource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;loading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Bool&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;NSError&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This is of course a great example for a presentation, but it makes the assumption that you only want to retrieve that data in the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Ready&lt;/span&gt;&lt;/code&gt; state. But what if you want to reload the data? You will have to switch to the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Loading&lt;/span&gt;&lt;/code&gt; state, but because the data is associated with the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Ready&lt;/span&gt;&lt;/code&gt; state, you can’t access the previously loaded data anymore. And even worse: if the reloading fails and you end up in the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt;&lt;/code&gt; state, you can’t even show the data that was shown before we reloaded!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/state_machine.svg&quot; alt=&quot;State machine&quot; class=&quot;centered full-width max-width-500&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If we look at the above image, we see that we need a representation of data in three of the four states. We can model that with optional associated values as follows:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;enum&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Empty&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Loading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;NSError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Ouch. That suddenly doesn’t look as nice anymore, does it? But bear with me, we can fix this. We can define a computed property on the state enum that provides us with the data or error, no matter what the current state is:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;extension&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;State&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;switch&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;Empty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;nil&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Loading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;NSError&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;switch&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;nil&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;  
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Ok, now we can retrieve the data in a better way, but what about associating the data with the enum? That can also be handled by defining some mutating functions on the enum:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;extension&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;State&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kr&quot;&gt;mutating&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;toLoading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;switch&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;oldData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Loading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;oldData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Loading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;kr&quot;&gt;mutating&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;toError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;NSError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;switch&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Loading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;let&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;oldData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;oldData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;assert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Invalid state transition to .Error from other than .Loading&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;kr&quot;&gt;mutating&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;toReady&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;D&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;switch&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;Loading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Ready&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;assert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;Invalid state transition to .Ready from other than .Loading&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Using these functions to switch state serves three purposes:&lt;br /&gt;
+- Abstracting away the implementation details of where and how the data is stored in the enum&lt;br /&gt;
+- Making sure there can be no invalid state transitions&lt;br /&gt;
+- Enforcing the associated data to be present at the moment you switch to a state&lt;/p&gt;
+
+&lt;p&gt;This state machine is actually pretty nice to use now:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DataSource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;State&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Empty&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toLoading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;requestData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;error&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;nil&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toReady&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;numberOfItems&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Int&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;??&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This enum could be further extended to have callbacks when changing the state, so it is much easier implement behaviour upon state change. The full code for this post can be found in &lt;a href=&quot;https://gist.github.com/nvh/1b09b32a335be28e47e8&quot;&gt;this gist&lt;/a&gt;&lt;/p&gt;
+
+&lt;hr /&gt;
+&lt;div class=&quot;footnotes&quot;&gt;
+  &lt;ol&gt;
+    &lt;li id=&quot;fn:1&quot;&gt;
+      &lt;p&gt;The actual enum would look a bit less nice, because of limitations in Swift. You’ll have to &lt;a href=&quot;https://github.com/robrix/Box&quot;&gt;box&lt;/a&gt; the generic value, but we’ll ignore that for readability in this post &lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Fri, 13 Feb 2015 16:36:00 +0100</pubDate>
+        <link>http://blog.nvh.io/2015/02/13/state-machine-inside-swift-enum.html</link>
+        <guid isPermaLink="true">http://blog.nvh.io/2015/02/13/state-machine-inside-swift-enum.html</guid>
+        
+        
+        <category>swift</category>
+        
+        <category>ios</category>
+        
+        <category>enum</category>
+        
+      </item>
+    
+      <item>
+        <title>Offline storage without iCloud backups</title>
+        <description>&lt;p&gt;Today I got my first App-rejection&lt;sup id=&quot;fnref:1&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;. NRC Media’s &lt;a href=&quot;http://www.nrc.nl/inbeeldappstore&quot;&gt;In beeld&lt;/a&gt; app recently got a major update, which as it turns out didn’t follow Apple’s &lt;a href=&quot;https://developer.apple.com/icloud/documentation/data-storage/&quot;&gt;iOS Data Storage Guidelines&lt;/a&gt;. However, Apple’s review team detected this in the minor bugfix update that I submitted after that. The problem was that all photo’s downloaded by the app were backed up into iCloud resulting in an increase of backup size of about 100MB in some cases.&lt;/p&gt;
+
+&lt;p&gt;While you can use the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;o&quot;&gt;~/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Library&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Caches&lt;/span&gt;&lt;/code&gt; directory to store files that can be reproduced (downloaded again or regenerated), iOS can purge this data at any time, crippling offline support for your app. Marco Arment has a nice write-up about the &lt;a href=&quot;http://www.marco.org/2011/10/13/ios5-caches-cleaning&quot;&gt;consequences of this behaviour&lt;/a&gt;. While his post now contains an update mentioning the change Apple made in iOS 5.0.1 to address this problem, I couldn’t find a post about the way you should implement it, so here it is.&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;In iOS 5.0.1 Apple introduced a new file attribute allowing developers to specify which files shouldn’t be backed up. They defined four ‘Data Handling Categories’ described in &lt;a href=&quot;http://developer.apple.com/library/ios/#qa/qa1719/_index.html&quot;&gt;Technical Q&amp;amp;A QA1719&lt;/a&gt;: Critical Data, Cached Data, Temporary Data and Offline Data. Offline Data is defined as “[…] data that can be downloaded or otherwise recreated, but that the user expects to be reliably available when offline”.&lt;/p&gt;
+
+&lt;p&gt;Offline data should be stored in the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;o&quot;&gt;~/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Documents&lt;/span&gt;&lt;/code&gt; directory or in a subdirectory of &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;o&quot;&gt;~/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Libary&lt;/span&gt;&lt;/code&gt; such as &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;o&quot;&gt;~/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Library&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Private&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Documents&lt;/span&gt;&lt;/code&gt; and marked with a special file attribute that specifies that the file should not be backupped, but isn’t purged when storage runs low. How this attribute should be set is different for iOS version 5.0.1 and 5.1.&lt;/p&gt;
+
+&lt;p&gt;In iOS 5.0.1 the attribute named &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;apple&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MobileBackup&lt;/span&gt;&lt;/code&gt; should be given the value &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;/code&gt; using &lt;a href=&quot;https://developer.apple.com/library/mac/#documentation/Darwin/Reference/Manpages/man2/setxattr.2.html&quot;&gt;&lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;setxattr&lt;/span&gt;&lt;/code&gt;&lt;/a&gt; for every filepath that should not be backed up. This attribute is ignored by iOS version 5.0 an lower, so it can be safely added in any iOS version. Sample code for this is &lt;a href=&quot;http://developer.apple.com/library/ios/#qa/qa1719/_index.html&quot;&gt;provided by Apple&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-objc&quot;&gt;&lt;span class=&quot;cp&quot;&gt;#include &amp;lt;sys/xattr.h&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;BOOL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addSkipBackupAttributeToItemAtURL:&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;NSURL&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;URL&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;char&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;filePath&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;URL&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fileSystemRepresentation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;char&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrName&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;com.apple.MobileBackup&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;u_int8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrValue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;setxattr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filePath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attrName&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;attrValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;sizeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;attrValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;In iOS 5.1 Apple added the &lt;a href=&quot;http://developer.apple.com/library/ios/#DOCUMENTATION/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html#//apple_ref/doc/c_ref/NSURLIsExcludedFromBackupKey&quot;&gt;&lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;NSURLIsExcludedFromBackupKey&lt;/span&gt;&lt;/code&gt;&lt;/a&gt; that can be added to a file URL with the &lt;a href=&quot;http://developer.apple.com/library/ios/#DOCUMENTATION/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html#//apple_ref/occ/instm/NSURL/setResourceValue:forKey:error:&quot;&gt;&lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;nl&quot;&gt;setResourceValue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;forKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;/code&gt;&lt;/a&gt; instance method of &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;bp&quot;&gt;NSURL&lt;/span&gt;&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;These two methods are combined nicely in the following gist:&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/2002382.js?file=NSFileManager%2BDoNotBackup.m&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;There is just one caveat: because of a &lt;a href=&quot;http://www.openradar.me/radar?id=1597401&quot;&gt;bug&lt;/a&gt; in the iOS 5.0 simulator, &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;NSURLIsExcludedFromBackupKey&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;nil&lt;/span&gt;&lt;/code&gt; will return false even if that symbol is not defined. This will cause this piece of code to crash in the iOS 5.0 simulator, but it will run fine in the iOS 5.1 simulator and on any iOS device.&lt;/p&gt;
+
+&lt;hr /&gt;
+&lt;div class=&quot;footnotes&quot;&gt;
+  &lt;ol&gt;
+    &lt;li id=&quot;fn:1&quot;&gt;
+      &lt;p&gt;Well, that is not entirely true. My first iOS app, an iPhone client &lt;a href=&quot;http://fetishwijzer.nl&quot;&gt;Fetishwijzer&lt;/a&gt; got rejected and never made it to the App Store, but I kind of expected that &lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;
+</description>
+        <pubDate>Thu, 10 May 2012 14:09:00 +0200</pubDate>
+        <link>http://blog.nvh.io/2012/05/10/offline-storage-without-icloud-backups.html</link>
+        <guid isPermaLink="true">http://blog.nvh.io/2012/05/10/offline-storage-without-icloud-backups.html</guid>
+        
+        
+        <category>ios</category>
+        
+        <category>icloud</category>
+        
+      </item>
+    
+      <item>
+        <title>Making testers your clients</title>
+        <description>&lt;p&gt;There are currently lot of people doing freelance iOS work. And because it’s so easy to submit an app to the App Store, most of them have some personal app projects on the side. These two kind of projects are difficult to combine because they almost always conflict with each other. How often haven’t you delayed a personal project because a client deadline was coming up and you weren’t ready yet? Personal projects are the ones that are most easy to delay, because the the commitment you have to them is only to yourself. Everybody knows that you need to be really disciplined to make a personal deadline, because there are few consequences of not meeting it.&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;Think about this, does actually nobody know about your app? You’ve most likely told &lt;em&gt;someone&lt;/em&gt; about it. &lt;a href=&quot;http://www.adilwali.com/entrepreneurship/ideas-are-worthless-execution-is-everything/&quot;&gt;Ideas are worthless&lt;/a&gt; anyway. You probably have some testers using a beta version of your app and providing you feedback. You can use these people for more than just discovering bugs in your code.&lt;/p&gt;
+
+&lt;p&gt;When it comes to deadlines and finishing projects, it is all about &lt;em&gt;commitment&lt;/em&gt;. You probably think you’re committed to your personal projects, but if you delay them as soon as a deadline of a client comes up, you aren’t really. The problem here is that you don’t have a commitment to &lt;em&gt;real people&lt;/em&gt; for finishing your project. {“ Making a commitment to real people is what matters “}.&lt;/p&gt;
+
+&lt;p&gt;Luckily you already know real people, the only thing you need to do is to tell them about your plans. Let your testers now when you plan to release the next beta version and what features will be added. Tell your friends when you will be publishing your app to the App Store. This way your commitment isn’t only to yourself, but to a real person. And if you’re lucky, that person will ask you about it if you don’t deliver on time. Of course a deadline of a client is probably still more important than one that you made up yourself, but at least your commitment will be to real people, which makes you more likely to deliver.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 18 Apr 2012 21:54:00 +0200</pubDate>
+        <link>http://blog.nvh.io/2012/04/18/making-testers-your-clients.html</link>
+        <guid isPermaLink="true">http://blog.nvh.io/2012/04/18/making-testers-your-clients.html</guid>
+        
+        
+        <category>ios</category>
+        
+      </item>
+    
+      <item>
+        <title>Nesting Stacks in Spine.js</title>
+        <description>&lt;p&gt;&lt;a href=&quot;http://spinejs.com&quot;&gt;Spine.js&lt;/a&gt; is a simple and lightweight MVC framework in CoffeeScript. It has a nifty feature called ‘Stacks’, which I can’t explain better than the documentation:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Stacks are a way of grouping controllers, ensuring that only one controller is activated and displayed at any one time.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;If you aren’t up to speed about Stacks and how to use them, I encourage you to read the &lt;a href=&quot;http://spinejs.com/docs/stacks&quot;&gt;Spine documentation&lt;/a&gt;, it’s really good.&lt;/p&gt;
+
+&lt;p&gt;When I tried nesting Stacks, I ran into the problem that the correct controllers would not always activate. In this post I will discuss the setup in which this problem arises and provide my solution to it.&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;I used a &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;Root&lt;/span&gt;&lt;/code&gt;-controller that would activate the separate sections of my application represented by their own controllers, in this example a &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;Resources&lt;/span&gt;&lt;/code&gt; and a &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;Users&lt;/span&gt;&lt;/code&gt; controller:&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/1852497.js?file=example_root.js.coffee&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;Each controller in this Stack contains another (sub)stack which controls the different functions of that sub-controller. For example, the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;Users&lt;/span&gt;&lt;/code&gt; controller has separate controllers and routes for searching users, showing a user, and editing its profile:&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/1852497.js?file=example_users.js.coffee&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;When a controller of the substack is activated (by navigating to one of the associated routes), the containing controller will not automatically activate itself. This results the right controller in the substack to be activated, but the substack itself could remain hidden because it’s controller is not activated.&lt;/p&gt;
+
+&lt;p&gt;Usually the key in the routes hash is a string referencing a controller, but the key can also be a callback function. This can be used to add extra functionality to the activation of a route.&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/1852497.js?file=substack.js.coffee&quot;&gt; &lt;/script&gt;
+
+&lt;p&gt;In this subclass of &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;Spine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Stack&lt;/span&gt;&lt;/code&gt; the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;p&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;routes&lt;/span&gt;&lt;/code&gt; hash is rewritten in the constructor. Instead of using the controller names as values, a function is defined for each route. This function will first call &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;p&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;active&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;, activating the controller and displaying its contents in the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;Root&lt;/span&gt;&lt;/code&gt; stack. After that, the correct sub-controller of the substack is activated by calling &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;l&quot;&gt;@[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;l&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;active&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;...)&lt;/span&gt;&lt;/code&gt;. After rewriting the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;p&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;routes&lt;/span&gt;&lt;/code&gt; hash, the constructor of &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;Spine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Stack&lt;/span&gt;&lt;/code&gt; is called to setup the routing (among other things).&lt;/p&gt;
+
+&lt;p&gt;Note that this method relies on the fact that in the constructor of &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;Spine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Stack&lt;/span&gt;&lt;/code&gt;, the controllers are instantiated and stored as properties in the class, as can be seen in this (incomplete) snippet:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-coffeescript&quot;&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Spine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Stack&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Spine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;Controller&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;
+  &lt;span class=&quot;nv&quot;&gt;constructor: &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;-&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;@controllers&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;stack: &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;nx&quot;&gt;@add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    &lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;…&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Therefore you can only define the routes to your controller with strings, but if you would want to use a function, you could call &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;p&quot;&gt;@&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;active&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt; in that function anyway.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 17 Apr 2012 23:55:00 +0200</pubDate>
+        <link>http://blog.nvh.io/2012/04/17/nesting-stacks-in-spine-dot-js.html</link>
+        <guid isPermaLink="true">http://blog.nvh.io/2012/04/17/nesting-stacks-in-spine-dot-js.html</guid>
+        
+        
+        <category>coffeescript</category>
+        
+        <category>spine</category>
+        
+      </item>
+    
+  </channel>
+</rss>
