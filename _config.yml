@@ -10,3 +10,6 @@ github_username:  nvh
 
 # Build settings
 markdown: kramdown
+
+kramdown:
+  input: GFM
