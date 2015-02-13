@@ -53,37 +53,36 @@
 
 <article>
   <div class="container">
-    <p><a href="http://spinejs.com">Spine.js</a> is a simple and lightweight MVC framework in CoffeeScript. It has a nifty feature called ‘Stacks’, which I can’t explain better than the documentation:</p>
+    <p><a href="http://spinejs.com">Spine.js</a> is a simple and lightweight MVC framework in CoffeeScript. It has a nifty feature called &#39;Stacks&#39;, which I can&#39;t explain better than the documentation:</p>
 
 <blockquote>
-  <p>Stacks are a way of grouping controllers, ensuring that only one controller is activated and displayed at any one time.</p>
+<p>Stacks are a way of grouping controllers, ensuring that only one controller is activated and displayed at any one time.</p>
 </blockquote>
 
-<p>If you aren’t up to speed about Stacks and how to use them, I encourage you to read the <a href="http://spinejs.com/docs/stacks">Spine documentation</a>, it’s really good.</p>
+<p>If you aren&#39;t up to speed about Stacks and how to use them, I encourage you to read the <a href="http://spinejs.com/docs/stacks">Spine documentation</a>, it&#39;s really good.</p>
 
 <p>When I tried nesting Stacks, I ran into the problem that the correct controllers would not always activate. In this post I will discuss the setup in which this problem arises and provide my solution to it.</p>
 
 <!--more-->
 
-<p>I used a <code class="highlight language-swift"><span class="n">Root</span></code>-controller that would activate the separate sections of my application represented by their own controllers, in this example a <code class="highlight language-swift"><span class="n">Resources</span></code> and a <code class="highlight language-swift"><span class="n">Users</span></code> controller:</p>
+<p>I used a <code>Root</code>-controller that would activate the separate sections of my application represented by their own controllers, in this example a <code>Resources</code> and a <code>Users</code> controller:</p>
 
 <script src="https://gist.github.com/1852497.js?file=example_root.js.coffee"> </script>
 
-<p>Each controller in this Stack contains another (sub)stack which controls the different functions of that sub-controller. For example, the <code class="highlight language-swift"><span class="n">Users</span></code> controller has separate controllers and routes for searching users, showing a user, and editing its profile:</p>
+<p>Each controller in this Stack contains another (sub)stack which controls the different functions of that sub-controller. For example, the <code>Users</code> controller has separate controllers and routes for searching users, showing a user, and editing its profile:</p>
 
 <script src="https://gist.github.com/1852497.js?file=example_users.js.coffee"> </script>
 
-<p>When a controller of the substack is activated (by navigating to one of the associated routes), the containing controller will not automatically activate itself. This results the right controller in the substack to be activated, but the substack itself could remain hidden because it’s controller is not activated.</p>
+<p>When a controller of the substack is activated (by navigating to one of the associated routes), the containing controller will not automatically activate itself. This results the right controller in the substack to be activated, but the substack itself could remain hidden because it&#39;s controller is not activated.</p>
 
 <p>Usually the key in the routes hash is a string referencing a controller, but the key can also be a callback function. This can be used to add extra functionality to the activation of a route.</p>
 
 <script src="https://gist.github.com/1852497.js?file=substack.js.coffee"> </script>
 
-<p>In this subclass of <code class="highlight language-swift"><span class="n">Spine</span><span class="p">.</span><span class="n">Stack</span></code> the <code class="highlight language-swift"><span class="p">@</span><span class="n">routes</span></code> hash is rewritten in the constructor. Instead of using the controller names as values, a function is defined for each route. This function will first call <code class="highlight language-swift"><span class="p">@</span><span class="n">active</span><span class="p">()</span></code>, activating the controller and displaying its contents in the <code class="highlight language-swift"><span class="n">Root</span></code> stack. After that, the correct sub-controller of the substack is activated by calling <code class="highlight language-swift"><span class="l">@[</span><span class="n">value</span><span class="l">]</span><span class="p">.</span><span class="n">active</span><span class="p">(</span><span class="n">arguments</span><span class="p">...)</span></code>. After rewriting the <code class="highlight language-swift"><span class="p">@</span><span class="n">routes</span></code> hash, the constructor of <code class="highlight language-swift"><span class="n">Spine</span><span class="p">.</span><span class="n">Stack</span></code> is called to setup the routing (among other things).</p>
+<p>In this subclass of <code>Spine.Stack</code> the <code>@routes</code> hash is rewritten in the constructor. Instead of using the controller names as values, a function is defined for each route. This function will first call <code>@active()</code>, activating the controller and displaying its contents in the <code>Root</code> stack. After that, the correct sub-controller of the substack is activated by calling <code>@[value].active(arguments...)</code>. After rewriting the <code>@routes</code> hash, the constructor of <code>Spine.Stack</code> is called to setup the routing (among other things).</p>
 
-<p>Note that this method relies on the fact that in the constructor of <code class="highlight language-swift"><span class="n">Spine</span><span class="p">.</span><span class="n">Stack</span></code>, the controllers are instantiated and stored as properties in the class, as can be seen in this (incomplete) snippet:</p>
-
-<div class="highlight"><pre><code class="language-coffeescript"><span class="k">class</span> <span class="nx">Spine</span><span class="p">.</span><span class="nx">Stack</span> <span class="k">extends</span> <span class="nx">Spine</span><span class="p">.</span><span class="nx">Controller</span>
+<p>Note that this method relies on the fact that in the constructor of <code>Spine.Stack</code>, the controllers are instantiated and stored as properties in the class, as can be seen in this (incomplete) snippet:</p>
+<div class="highlight"><pre><code class="language-coffeescript" data-lang="coffeescript"><span class="k">class</span> <span class="nx">Spine</span><span class="p">.</span><span class="nx">Stack</span> <span class="k">extends</span> <span class="nx">Spine</span><span class="p">.</span><span class="nx">Controller</span>
   <span class="err">…</span>
   <span class="nv">constructor: </span><span class="nf">-&gt;</span>
     <span class="err">…</span>
@@ -91,9 +90,9 @@
       <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">value</span><span class="p">(</span><span class="nv">stack: </span><span class="nx">@</span><span class="p">)</span>
       <span class="nx">@add</span><span class="p">(</span><span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span>
     <span class="err">…</span>
-<span class="err">…</span></code></pre></div>
-
-<p>Therefore you can only define the routes to your controller with strings, but if you would want to use a function, you could call <code class="highlight language-swift"><span class="p">@</span><span class="n">active</span><span class="p">()</span></code> in that function anyway.</p>
+<span class="err">…</span>
+</code></pre></div>
+<p>Therefore you can only define the routes to your controller with strings, but if you would want to use a function, you could call <code>@active()</code> in that function anyway.</p>
 
   </div>
 </article>

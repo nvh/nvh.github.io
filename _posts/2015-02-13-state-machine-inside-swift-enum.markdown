@@ -10,7 +10,7 @@ excerpt: Last week at dotSwift.io, two of the presentations   contained a versio
 ---
 Last week at [dotSwift.io](http://www.dotswift.io), two of the presentations contained a version of the following example of using associated values of Swift enumerations:
 
-```
+```swift
 enum State<D> {
   case Empty
   case Loading
@@ -22,12 +22,16 @@ struct DataSource<T> {
   var state: State<T>
 }
 ```
-
+```javascript
+function(test) {
+  var bla = test;
+};
+```
 <!--more-->
 
 This is nice[^1], because it can replace the separate variables for keeping state and the data associated with it:
 
-```
+```swift
 struct DataSource<T> {
   var loading: Bool
   var data: T?
@@ -41,7 +45,7 @@ This is of course a great example for a presentation, but it makes the assumptio
 
 If we look at the above image, we see that we need a representation of data in three of the four states. We can model that with optional associated values as follows:
 
-```
+```swift
 enum State<D> {
     case Empty
     case Loading(D?)
@@ -52,7 +56,7 @@ enum State<D> {
 
 Ouch. That suddenly doesn't look as nice anymore, does it? But bear with me, we can fix this. We can define a computed property on the state enum that provides us with the data or error, no matter what the current state is:
 
-```
+```swift
 extension State {
     var data: D? {
         switch self {
@@ -80,7 +84,7 @@ extension State {
 
 Ok, now we can retrieve the data in a better way, but what about associating the data with the enum? That can also be handled by defining some mutating functions on the enum:
 
-```
+```swift
 extension State {
     mutating func toLoading() {
         switch self {
@@ -118,7 +122,7 @@ Using these functions to switch state serves three purposes:
 
 This state machine is actually pretty nice to use now:
 
-```
+```swift
 class DataSource<T> {
   var state: State<[T]> = .Empty
 

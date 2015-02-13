@@ -54,8 +54,7 @@
 <article>
   <div class="container">
     <p>Last week at <a href="http://www.dotswift.io">dotSwift.io</a>, two of the presentations contained a version of the following example of using associated values of Swift enumerations:</p>
-
-<div class="highlight"><pre><code class="language-swift"><span class="k">enum</span> <span class="n">State</span><span class="o">&lt;</span><span class="n">D</span><span class="o">&gt;</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">enum</span> <span class="n">State</span><span class="o">&lt;</span><span class="n">D</span><span class="o">&gt;</span> <span class="p">{</span>
   <span class="k">case</span> <span class="n">Empty</span>
   <span class="k">case</span> <span class="n">Loading</span>
   <span class="k">case</span> <span class="n">Ready</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
@@ -64,34 +63,34 @@
 
 <span class="k">struct</span> <span class="n">DataSource</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
   <span class="k">var</span> <span class="nl">state</span><span class="p">:</span> <span class="n">State</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
-<span class="p">}</span></code></pre></div>
-
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span><span class="p">(</span><span class="nx">test</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">bla</span> <span class="o">=</span> <span class="nx">test</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
 <!--more-->
 
-<p>This is nice<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>, because it can replace the separate variables for keeping state and the data associated with it:</p>
-
-<div class="highlight"><pre><code class="language-swift"><span class="k">struct</span> <span class="n">DataSource</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+<p>This is nice[^1], because it can replace the separate variables for keeping state and the data associated with it:</p>
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">struct</span> <span class="n">DataSource</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
   <span class="k">var</span> <span class="nl">loading</span><span class="p">:</span> <span class="n">Bool</span>
   <span class="k">var</span> <span class="nl">data</span><span class="p">:</span> <span class="n">T</span><span class="o">?</span>
   <span class="k">var</span> <span class="nl">error</span><span class="p">:</span> <span class="bp">NSError</span><span class="o">?</span>
-<span class="p">}</span></code></pre></div>
+<span class="p">}</span>
+</code></pre></div>
+<p>This is of course a great example for a presentation, but it makes the assumption that you only want to retrieve that data in the <code>.Ready</code> state. But what if you want to reload the data? You will have to switch to the <code>.Loading</code> state, but because the data is associated with the <code>.Ready</code> state, you can&#39;t access the previously loaded data anymore. And even worse: if the reloading fails and you end up in the <code>.Error</code> state, you can&#39;t even show the data that was shown before we reloaded!</p>
 
-<p>This is of course a great example for a presentation, but it makes the assumption that you only want to retrieve that data in the <code class="highlight language-swift"><span class="p">.</span><span class="n">Ready</span></code> state. But what if you want to reload the data? You will have to switch to the <code class="highlight language-swift"><span class="p">.</span><span class="n">Loading</span></code> state, but because the data is associated with the <code class="highlight language-swift"><span class="p">.</span><span class="n">Ready</span></code> state, you can’t access the previously loaded data anymore. And even worse: if the reloading fails and you end up in the <code class="highlight language-swift"><span class="p">.</span><span class="n">Error</span></code> state, you can’t even show the data that was shown before we reloaded!</p>
-
-<p><img src="/images/state_machine.svg" alt="State machine" class="centered full-width max-width-500" /></p>
+<p><img src="/images/state_machine.svg" alt="State machine">{: .centered .full-width .max-width-500 }</p>
 
 <p>If we look at the above image, we see that we need a representation of data in three of the four states. We can model that with optional associated values as follows:</p>
-
-<div class="highlight"><pre><code class="language-swift"><span class="k">enum</span> <span class="n">State</span><span class="o">&lt;</span><span class="n">D</span><span class="o">&gt;</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">enum</span> <span class="n">State</span><span class="o">&lt;</span><span class="n">D</span><span class="o">&gt;</span> <span class="p">{</span>
     <span class="k">case</span> <span class="n">Empty</span>
     <span class="k">case</span> <span class="n">Loading</span><span class="p">(</span><span class="n">D</span><span class="o">?</span><span class="p">)</span>
     <span class="k">case</span> <span class="n">Ready</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
     <span class="k">case</span> <span class="n">Error</span><span class="p">(</span><span class="bp">NSError</span><span class="p">,</span><span class="n">D</span><span class="o">?</span><span class="p">)</span>
-<span class="p">}</span></code></pre></div>
-
-<p>Ouch. That suddenly doesn’t look as nice anymore, does it? But bear with me, we can fix this. We can define a computed property on the state enum that provides us with the data or error, no matter what the current state is:</p>
-
-<div class="highlight"><pre><code class="language-swift"><span class="k">extension</span> <span class="n">State</span> <span class="p">{</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Ouch. That suddenly doesn&#39;t look as nice anymore, does it? But bear with me, we can fix this. We can define a computed property on the state enum that provides us with the data or error, no matter what the current state is:</p>
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">extension</span> <span class="n">State</span> <span class="p">{</span>
     <span class="k">var</span> <span class="nl">data</span><span class="p">:</span> <span class="n">D</span><span class="o">?</span> <span class="p">{</span>
         <span class="k">switch</span> <span class="nb">self</span> <span class="p">{</span>
         <span class="k">case</span> <span class="p">.</span><span class="nl">Empty</span><span class="p">:</span>
@@ -113,11 +112,10 @@
             <span class="k">return</span> <span class="nb">nil</span>
         <span class="p">}</span>
     <span class="p">}</span>  
-<span class="p">}</span></code></pre></div>
-
+<span class="p">}</span>
+</code></pre></div>
 <p>Ok, now we can retrieve the data in a better way, but what about associating the data with the enum? That can also be handled by defining some mutating functions on the enum:</p>
-
-<div class="highlight"><pre><code class="language-swift"><span class="k">extension</span> <span class="n">State</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">extension</span> <span class="n">State</span> <span class="p">{</span>
     <span class="kr">mutating</span> <span class="k">func</span> <span class="n">toLoading</span><span class="p">()</span> <span class="p">{</span>
         <span class="k">switch</span> <span class="nb">self</span> <span class="p">{</span>
         <span class="k">case</span> <span class="p">.</span><span class="n">Ready</span><span class="p">(</span><span class="k">let</span> <span class="n">oldData</span><span class="p">)</span><span class="o">:</span>
@@ -144,16 +142,15 @@
             <span class="n">assert</span><span class="p">(</span><span class="nb">false</span><span class="p">,</span> <span class="s">&quot;Invalid state transition to .Ready from other than .Loading&quot;</span><span class="p">)</span>
         <span class="p">}</span>
     <span class="p">}</span>
-<span class="p">}</span></code></pre></div>
-
-<p>Using these functions to switch state serves three purposes:<br />
-- Abstracting away the implementation details of where and how the data is stored in the enum<br />
-- Making sure there can be no invalid state transitions<br />
+<span class="p">}</span>
+</code></pre></div>
+<p>Using these functions to switch state serves three purposes:
+- Abstracting away the implementation details of where and how the data is stored in the enum
+- Making sure there can be no invalid state transitions
 - Enforcing the associated data to be present at the moment you switch to a state</p>
 
 <p>This state machine is actually pretty nice to use now:</p>
-
-<div class="highlight"><pre><code class="language-swift"><span class="k">class</span> <span class="n">DataSource</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">class</span> <span class="n">DataSource</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
   <span class="k">var</span> <span class="nl">state</span><span class="p">:</span> <span class="n">State</span><span class="o">&lt;</span><span class="p">[</span><span class="n">T</span><span class="p">]</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">.</span><span class="n">Empty</span>
 
   <span class="k">func</span> <span class="n">load</span><span class="p">()</span> <span class="p">{</span>
@@ -170,18 +167,13 @@
   <span class="k">func</span> <span class="n">numberOfItems</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Int</span> <span class="p">{</span>
     <span class="k">return</span> <span class="n">state</span><span class="p">.</span><span class="n">data</span><span class="o">?</span><span class="p">.</span><span class="n">count</span> <span class="o">??</span> <span class="mi">0</span>
   <span class="p">}</span>
-<span class="p">}</span></code></pre></div>
-
+<span class="p">}</span>
+</code></pre></div>
 <p>This enum could be further extended to have callbacks when changing the state, so it is much easier implement behaviour upon state change. The full code for this post can be found in <a href="https://gist.github.com/nvh/1b09b32a335be28e47e8">this gist</a></p>
 
-<hr />
-<div class="footnotes">
-  <ol>
-    <li id="fn:1">
-      <p>The actual enum would look a bit less nice, because of limitations in Swift. You’ll have to <a href="https://github.com/robrix/Box">box</a> the generic value, but we’ll ignore that for readability in this post <a href="#fnref:1" class="reversefootnote">&#8617;</a></p>
-    </li>
-  </ol>
-</div>
+<hr>
+
+<p>[^1]: The actual enum would look a bit less nice, because of limitations in Swift. You&#39;ll have to <a href="https://github.com/robrix/Box">box</a> the generic value, but we&#39;ll ignore that for readability in this post</p>
 
   </div>
 </article>
