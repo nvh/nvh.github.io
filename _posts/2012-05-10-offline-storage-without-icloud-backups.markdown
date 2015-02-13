@@ -12,9 +12,9 @@ In iOS 5.0.1 Apple introduced a new file attribute allowing developers to specif
 
 Offline data should be stored in the `~/Documents` directory or in a subdirectory of `~/Libary` such as `~/Library/Private Documents` and marked with a special file attribute that specifies that the file should not be backupped, but isn't purged when storage runs low. How this attribute should be set is different for iOS version 5.0.1 and 5.1.
 
-In iOS 5.0.1 the attribute named `com.apple.MobileBackup` should be given the value `1` using [`setxattr`](https://developer.apple.com/library/mac/#documentation/Darwin/Reference/Manpages/man2/setxattr.2.html) for every filepath that should not be backed up. This attribute is ignored by iOS version 5.0 an lower, so it can be safely added in any iOS version. Sample code for this is provided by Apple:
+In iOS 5.0.1 the attribute named `com.apple.MobileBackup` should be given the value `1` using [`setxattr`](https://developer.apple.com/library/mac/#documentation/Darwin/Reference/Manpages/man2/setxattr.2.html) for every filepath that should not be backed up. This attribute is ignored by iOS version 5.0 an lower, so it can be safely added in any iOS version. Sample code for this is [provided by Apple](http://developer.apple.com/library/ios/#qa/qa1719/_index.html):
 
-{% codeblock Setting the Extended Attribute in iOS 5.0.1 lang:c http://developer.apple.com/library/ios/#qa/qa1719/_index.html Technical Q&A QA1719 %}
+```objc
 #include <sys/xattr.h>
 - (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL
 {
@@ -26,7 +26,7 @@ In iOS 5.0.1 the attribute named `com.apple.MobileBackup` should be given the va
     int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
     return result == 0;
 }
-{% endcodeblock %}
+```
 
 In iOS 5.1 Apple added the [`NSURLIsExcludedFromBackupKey`](http://developer.apple.com/library/ios/#DOCUMENTATION/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html#//apple_ref/doc/c_ref/NSURLIsExcludedFromBackupKey) that can be added to a file URL with the [`setResourceValue:forKey:error:`](http://developer.apple.com/library/ios/#DOCUMENTATION/Cocoa/Reference/Foundation/Classes/NSURL_Class/Reference/Reference.html#//apple_ref/occ/instm/NSURL/setResourceValue:forKey:error:) instance method of `NSURL`. 
 

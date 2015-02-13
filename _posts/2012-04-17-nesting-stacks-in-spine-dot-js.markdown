@@ -31,8 +31,7 @@ In this subclass of `Spine.Stack` the `@routes` hash is rewritten in the constru
 
 Note that this method relies on the fact that in the constructor of `Spine.Stack`, the controllers are instantiated and stored as properties in the class, as can be seen in this (incomplete) snippet:
 
-{% codeblock Spine.Stack - manager.coffee lang:coffeescript https://github.com/maccman/spine/blob/master/src/manager.coffee Spine GitHub repository %}
-…
+```coffeescript
 class Spine.Stack extends Spine.Controller
   …
   constructor: ->
@@ -42,6 +41,6 @@ class Spine.Stack extends Spine.Controller
       @add(@[key])
     …
 …
-{% endcodeblock %}
+```
 
 Therefore you can only define the routes to your controller with strings, but if you would want to use a function, you could call `@active()` in that function anyway.
