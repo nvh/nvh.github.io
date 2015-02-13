@@ -6,6 +6,7 @@ categories: Swift iOS enum
 featured_image: /images/featured/highvoltage.jpg
 photo_attribution: "creative commons licensed (BY-NC-SA) flickr photo by _boris"
 photo_attribution_link: http://flickr.com/photos/_boris/311189091
+excerpt: Last week at dotSwift.io, two of the presentations   contained a version of the following example of using associated values of Swift enumerations…
 ---
 Last week at [dotSwift.io](http://www.dotswift.io), two of the presentations contained a version of the following example of using associated values of Swift enumerations:
 
