@@ -2,7 +2,6 @@
 layout: post
 title: "Making testers your clients"
 date: 2012-04-18 21:54
-comments: true
 categories: 'iOS'
 ---
 {% pullquote %}

@@ -2,7 +2,6 @@
 layout: post
 title: "Nesting Stacks in Spine.js"
 date: 2012-04-17 23:55
-comments: true
 categories: ['CoffeeScript', 'Spine']
 ---
 [Spine.js](http://spinejs.com) is a simple and lightweight MVC framework in CoffeeScript. It has a nifty feature called 'Stacks', which I can't explain better than the documentation:
