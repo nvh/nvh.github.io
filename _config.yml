@@ -10,4 +10,8 @@ twitter_username: nvh
 github_username:  nvh
 
 # Build settings
-markdown: redcarpet
+markdown: KramdownPygments
+
+kramdown:
+  input: GFM
+  default_lang: swift
