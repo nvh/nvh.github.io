@@ -4,7 +4,7 @@ title: "Offline storage without iCloud backups"
 date: 2012-05-10 14:09
 categories: iOS, iCloud
 ---
-Today I got my first App-rejection{% fn_ref 1%}. NRC Media's [In beeld](http://www.nrc.nl/inbeeldappstore) app recently got a major update, which as it turns out didn't follow Apple's [iOS Data Storage Guidelines](https://developer.apple.com/icloud/documentation/data-storage/). However, Apple's review team detected this in the minor bugfix update that I submitted after that. The problem was that all photo's downloaded by the app were backed up into iCloud resulting in an increase of backup size of about 100MB in some cases.
+Today I got my first App-rejection[^1]. NRC Media's [In beeld](http://www.nrc.nl/inbeeldappstore) app recently got a major update, which as it turns out didn't follow Apple's [iOS Data Storage Guidelines](https://developer.apple.com/icloud/documentation/data-storage/). However, Apple's review team detected this in the minor bugfix update that I submitted after that. The problem was that all photo's downloaded by the app were backed up into iCloud resulting in an increase of backup size of about 100MB in some cases.
 
 While you can use the `~/Library/Caches` directory to store files that can be reproduced (downloaded again or regenerated), iOS can purge this data at any time, crippling offline support for your app. Marco Arment has a nice write-up about the [consequences of this behaviour](http://www.marco.org/2011/10/13/ios5-caches-cleaning). While his post now contains an update mentioning the change Apple made in iOS 5.0.1 to address this problem, I couldn't find a post about the way you should implement it, so here it is.
 <!-- more -->
@@ -36,8 +36,4 @@ These two methods are combined nicely in the following gist:
 
 There is just one caveat: because of a [bug](http://www.openradar.me/radar?id=1597401) in the iOS 5.0 simulator, `&NSURLIsExcludedFromBackupKey == nil` will return false even if that symbol is not defined. This will cause this piece of code to crash in the iOS 5.0 simulator, but it will run fine in the iOS 5.1 simulator and on any iOS device.
 
-- - -
-
-{% footnotes %}
- {% fn Well, that is not entirely true. My first iOS app, an iPhone client <a href='http://fetishwijzer.nl'>Fetishwijzer</a> got rejected and never made it to the App Store, but I kind of expected that. %}
-{% endfootnotes %}
+[^1]: Well, that is not entirely true. My first iOS app, an iPhone client <a href='http://fetishwijzer.nl'>Fetishwijzer</a> got rejected and never made it to the App Store, but I kind of expected that

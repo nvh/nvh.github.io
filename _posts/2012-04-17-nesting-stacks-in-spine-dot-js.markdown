@@ -6,9 +6,8 @@ categories: ['CoffeeScript', 'Spine']
 ---
 [Spine.js](http://spinejs.com) is a simple and lightweight MVC framework in CoffeeScript. It has a nifty feature called 'Stacks', which I can't explain better than the documentation:
 
-{% blockquote %}
-Stacks are a way of grouping controllers, ensuring that only one controller is activated and displayed at any one time.
-{% endblockquote %}
+> Stacks are a way of grouping controllers, ensuring that only one controller is activated and displayed at any one time.
+
 
 If you aren't up to speed about Stacks and how to use them, I encourage you to read the [Spine documentation](http://spinejs.com/docs/stacks), it's really good.
 
