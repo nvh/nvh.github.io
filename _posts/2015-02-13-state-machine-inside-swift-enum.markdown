@@ -22,11 +22,7 @@ struct DataSource<T> {
   var state: State<T>
 }
 ```
-```javascript
-function(test) {
-  var bla = test;
-};
-```
+
 <!--more-->
 
 This is nice[^1], because it can replace the separate variables for keeping state and the data associated with it:
