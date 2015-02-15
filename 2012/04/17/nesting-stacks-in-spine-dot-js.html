@@ -17,15 +17,45 @@
   <!-- CSS -->
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css">
   <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
   <!-- Fonts -->
   <link href='http://fonts.googleapis.com/css?family=Bitter:400,700,400italic|Open+Sans:400italic,600italic,400,600' rel='stylesheet' type='text/css'>
 </head>
 <body>
-  <header style="background-image: url(/images/cover.jpg);">
+  <header style="background-image: url(/images/featured/library.jpg);">
+  
+    <a href="http://flickr.com/photos/joiseyshowaa/4874702533" title="Background image: creative commons licensed (BY-SA) flickr photo by joiseyshowaa" class="creative-commons"></a>
+  
   <div class="container post-container">
-    <a href="/" class="home_button"></a>
+    <ul class="icons">
+    <li>
+       <a href="/" title="Home">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-home fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href="http://twitter.com/nvh" title="Twitter">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href="http://github.com/nvh" title="GitHub">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+</ul>
+
     <div class="inner-container">
       <h1>Nesting Stacks in Spine.js</h1>
       <ul class="meta">
@@ -55,7 +85,6 @@
     </ul>
   </div>
 </header>
-
 <article>
   <div class="container">
     <p><a href="http://spinejs.com">Spine.js</a> is a simple and lightweight MVC framework in CoffeeScript. It has a nifty feature called ‘Stacks’, which I can’t explain better than the documentation:</p>

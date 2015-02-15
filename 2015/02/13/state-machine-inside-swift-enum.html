@@ -17,6 +17,7 @@
   <!-- CSS -->
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css">
   <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
   <!-- Fonts -->
@@ -24,8 +25,37 @@
 </head>
 <body>
   <header style="background-image: url(/images/featured/highvoltage.jpg);">
+  
+    <a href="http://flickr.com/photos/_boris/311189091" title="Background image: creative commons licensed (BY-NC-SA) flickr photo by _boris" class="creative-commons"></a>
+  
   <div class="container post-container">
-    <a href="/" class="home_button"></a>
+    <ul class="icons">
+    <li>
+       <a href="/" title="Home">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-home fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href="http://twitter.com/nvh" title="Twitter">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href="http://github.com/nvh" title="GitHub">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+</ul>
+
     <div class="inner-container">
       <h1>Swift's enum as a DataSource state machine</h1>
       <ul class="meta">
@@ -55,7 +85,6 @@
     </ul>
   </div>
 </header>
-
 <article>
   <div class="container">
     <p>Last week at <a href="http://www.dotswift.io">dotSwift.io</a>, two of the presentations contained a version of the following example of using associated values of Swift enumerations:</p>

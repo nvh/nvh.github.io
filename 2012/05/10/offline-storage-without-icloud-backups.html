@@ -17,15 +17,45 @@
   <!-- CSS -->
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css">
   <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
   <!-- Fonts -->
   <link href='http://fonts.googleapis.com/css?family=Bitter:400,700,400italic|Open+Sans:400italic,600italic,400,600' rel='stylesheet' type='text/css'>
 </head>
 <body>
-  <header style="background-image: url(/images/cover.jpg);">
+  <header style="background-image: url(/images/featured/cloud.jpg);">
+  
+    <a href="http://flickr.com/photos/johnmueller/52621490" title="Background image: creative commons licensed (BY-NC-ND) flickr photo by Extra Medium" class="creative-commons"></a>
+  
   <div class="container post-container">
-    <a href="/" class="home_button"></a>
+    <ul class="icons">
+    <li>
+       <a href="/" title="Home">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-home fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href="http://twitter.com/nvh" title="Twitter">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href="http://github.com/nvh" title="GitHub">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+</ul>
+
     <div class="inner-container">
       <h1>Offline storage without iCloud backups</h1>
       <ul class="meta">
@@ -61,7 +91,6 @@
     </ul>
   </div>
 </header>
-
 <article>
   <div class="container">
     <p>Today I got my first App-rejection<sup id="fnref:1"><a href="#fn:1" class="footnote">1</a></sup>. NRC Media’s <a href="http://www.nrc.nl/inbeeldappstore">In beeld</a> app recently got a major update, which as it turns out didn’t follow Apple’s <a href="https://developer.apple.com/icloud/documentation/data-storage/">iOS Data Storage Guidelines</a>. However, Apple’s review team detected this in the minor bugfix update that I submitted after that. The problem was that all photo’s downloaded by the app were backed up into iCloud resulting in an increase of backup size of about 100MB in some cases.</p>
