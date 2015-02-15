@@ -3,7 +3,9 @@ layout: post
 title: "Making testers your clients"
 date: 2012-04-18 21:54
 categories: iOS
-featured_image: /images/cover.jpg
+featured_image: /images/featured/tubes.jpg
+photo_attribution: creative commons licensed (BY-NC-SA) flickr photo by JUAN MAURICIO PIÑEROS PULIDO
+photo_attribution_link: http://flickr.com/photos/yrp/2134369690
 ---
 There are currently lot of people doing freelance iOS work. And because it's so easy to submit an app to the App Store, most of them have some personal app projects on the side. These two kind of projects are difficult to combine because they almost always conflict with each other. How often haven't you delayed a personal project because a client deadline was coming up and you weren't ready yet? Personal projects are the ones that are most easy to delay, because the the commitment you have to them is only to yourself. Everybody knows that you need to be really disciplined to make a personal deadline, because there are few consequences of not meeting it.
 

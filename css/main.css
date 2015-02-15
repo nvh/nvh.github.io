@@ -332,31 +332,21 @@ article a:hover {
   text-decoration: underline;
 }
 
-/* Posts List */
-
-ul.posts li {
-  list-style-type: none;
-  border-bottom: 1px solid #eeeeee;
-}
-
-ul.posts .meta {
-  display: block;
-  margin-bottom: 16px;
-  color: #8d8d8d;
-}
-
-ul.posts p {
-  margin-bottom: 36px;
-}
-
-.footnote {
+article .footnote {
   vertical-align: super;
   font-size: 80%;
+}
+
+article .footnotes li {
+  list-style: decimal;
+  list-style-position: outside;
+  margin-left: 28px;
 }
 
 .highlight {
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 }
+
 .container > .highlight {
   margin-bottom: 16px;
   border: 1px solid #ddd;
@@ -378,4 +368,60 @@ img.full-width {
 
 img.max-width-500 {
   max-width: 500px;
+}
+
+/* Posts List */
+
+ul.posts li {
+  list-style-type: none;
+  border-bottom: 1px solid #eeeeee;
+}
+
+ul.posts .meta {
+  display: block;
+  margin-bottom: 16px;
+  color: #8d8d8d;
+}
+
+ul.posts p {
+  margin-bottom: 36px;
+}
+
+/* Icons */
+
+.icons {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+.icons li {
+  display: inline-block;
+  list-style: none;
+}
+
+.icons a, .icons a:visited {
+  color:black;
+}
+
+.icons a:hover {
+  color:white;
+}
+
+.icons a:hover .fa-inverse {
+  color:black;
+}
+
+a.creative-commons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width:20px;
+  height:20px;
+  background: url('/images/cc.svg') no-repeat;
+  background-size: 20px 20px;
+  opacity: 0.5;
+}
+
+a.creative-commons:hover {
+  opacity: 1;
 }

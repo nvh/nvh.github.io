@@ -3,7 +3,9 @@ layout: post
 title: Nesting Stacks in Spine.js
 date: 2012-04-17 23:55
 categories: CoffeeScript Spine
-featured_image: /images/cover.jpg
+featured_image: /images/featured/library.jpg
+photo_attribution: creative commons licensed (BY-SA) flickr photo by joiseyshowaa
+photo_attribution_link: http://flickr.com/photos/joiseyshowaa/4874702533
 excerpt: >
     [Spine.js](http://spinejs.com) is a simple and lightweight MVC framework in CoffeeScript. It has a nifty feature called 'Stacks', which I can't explain better than the documentation: "Stacks are a way of grouping controllers, ensuring that only one controller is activated and displayed at any one time."
 ---

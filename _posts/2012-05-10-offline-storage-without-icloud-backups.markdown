@@ -3,7 +3,11 @@ layout: post
 title: "Offline storage without iCloud backups"
 date: 2012-05-10 14:09
 categories: iOS iCloud
-featured_image: /images/cover.jpg
+featured_image: /images/featured/cloud.jpg
+photo_attribution: creative commons licensed (BY-NC-ND) flickr photo by Extra Medium
+photo_attribution_link: http://flickr.com/photos/johnmueller/52621490
+excerpt: >
+  Today I got my first App-rejection. NRC Media's [In beeld](http://www.nrc.nl/inbeeldappstore) app recently got a major update, which as it turns out didn't follow Apple's [iOS Data Storage Guidelines](https://developer.apple.com/icloud/documentation/data-storage/). However, Apple's review team detected this in the minor bugfix update that I submitted after that. The problem was that all photo's downloaded by the app were backed up into iCloud resulting in an increase of backup size of about 100MB in some cases.
 ---
 Today I got my first App-rejection[^1]. NRC Media's [In beeld](http://www.nrc.nl/inbeeldappstore) app recently got a major update, which as it turns out didn't follow Apple's [iOS Data Storage Guidelines](https://developer.apple.com/icloud/documentation/data-storage/). However, Apple's review team detected this in the minor bugfix update that I submitted after that. The problem was that all photo's downloaded by the app were backed up into iCloud resulting in an increase of backup size of about 100MB in some cases.
 

@@ -2,8 +2,11 @@
 layout: default
 ---
 <header style="background-image: url({{ site.baseurl }}{{ page.featured_image }});">
+  {% if page.photo_attribution %}
+    <a href="{{ page.photo_attribution_link }}" title="Background image: {{ page.photo_attribution }}" class="creative-commons"></a>
+  {% endif %}
   <div class="container post-container">
-    <a href="{{ site.baseurl }}/" class="home_button"></a>
+    {% include navigation.html %}
     <div class="inner-container">
       <h1>{{ page.title }}</h1>
       <ul class="meta">
@@ -39,7 +42,6 @@ layout: default
     </ul>
   </div>
 </header>
-
 <article>
   <div class="container">
     {{ content }}
