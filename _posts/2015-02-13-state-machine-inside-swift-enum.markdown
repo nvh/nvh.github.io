@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Swift's enum as a DataSource state machine
+title: Swift's enum as a data source state machine
 date: 2015-02-13 16:36
 categories: Swift iOS enum
 featured_image: /images/featured/highvoltage.jpg
@@ -92,7 +92,7 @@ extension State {
             return .Loading(Box(nil))
         }
     }
-    
+
     func toError(error:E) -> DataSourceState {
         switch self {
         case .Loading(let oldData):
@@ -101,7 +101,7 @@ extension State {
             assert(false, "Invalid state transition to .Error from other than .Loading")
         }
     }
-        
+
     func toReady(data: D) -> DataSourceState {
         switch self {
         case .Loading:

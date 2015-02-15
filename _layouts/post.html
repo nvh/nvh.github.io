@@ -2,11 +2,11 @@
 layout: default
 ---
 <header style="background-image: url({{ site.baseurl }}{{ page.featured_image }});">
+  {% include navigation.html %}
   {% if page.photo_attribution %}
     <a href="{{ page.photo_attribution_link }}" title="Background image: {{ page.photo_attribution }}" class="creative-commons"></a>
   {% endif %}
   <div class="container post-container">
-    {% include navigation.html %}
     <div class="inner-container">
       <h1>{{ page.title }}</h1>
       <ul class="meta">
@@ -16,12 +16,12 @@ layout: default
           </span>
           {{ page.date | date_to_string }}
         </li>
-        <li>
+        <!-- <li>
           <span>
             Tags
           </span>
           {{ page.categories | array_to_sentence_string }}
-        </li>
+        </li> -->
       </ul>
     </div>
     <ul class="pagination">
