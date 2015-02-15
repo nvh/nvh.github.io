@@ -14,8 +14,8 @@ body {
 body {
   overflow-x: hidden;
   font-family: 'Bitter', serif;
-  font-size: 16px;
-  line-height: 28px;
+  font-size: 18px;
+  line-height: 30px;
   color: #222;
   font-weight: 400;
   white-space: nowrap;
@@ -50,7 +50,7 @@ blockquote {
   color: #666;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1400px) {
   h1 {
     font-size: 30px;
   }
@@ -73,9 +73,12 @@ article {
 .container {
   padding: 100px 50px;
   width: 100%;
+  max-width: 750px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1400px) {
   article {
     display: block;
   }
@@ -88,7 +91,7 @@ article {
 
 header {
   position: relative;
-  width: 35%;
+  width: 45%;
   background-repeat: no-repeat;
   background-position: center;
   -webkit-background-size: cover;
@@ -100,7 +103,7 @@ header {
   overflow: hidden;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1400px) {
   header {
     width: 100%;
   }
@@ -126,7 +129,7 @@ header .container {
 }
 
 
-@media screen and (min-width: 961px){
+@media screen and (min-width: 1401px){
   #home-header .container {
     position: absolute;
     top: 50%;
@@ -156,7 +159,7 @@ header .container {
   }
 }
 
-@media screen and (max-width: 960px){
+@media screen and (max-width: 1400px){
   #home-header .container {
     padding: 100px 50px;
   }
@@ -231,7 +234,7 @@ header ul.meta li span {
 
 /* Pagination */
 
-@media screen and (min-width: 961px){
+@media screen and (min-width: 1401px){
   .pagination {
     position: absolute;
     right: 10px;
@@ -240,7 +243,7 @@ header ul.meta li span {
   }
 }
 
-@media screen and (max-width: 960px){
+@media screen and (max-width: 1400px){
   .pagination {
     margin-top: 40px;
     padding: 0 10px;
@@ -285,7 +288,7 @@ header ul.meta li span {
 /* Article */
 
 article {
-  width: 65%;
+  width: 55%;
   overflow-x: hidden;
 }
 
@@ -294,7 +297,7 @@ article .container {
   padding-top: 80px;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1400px) {
   article {
     width: 100%;
     overflow: visible;
@@ -314,7 +317,7 @@ article li {
   list-style-type: disc;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1400px) {
   article li {
     margin-left: 0;
   }
