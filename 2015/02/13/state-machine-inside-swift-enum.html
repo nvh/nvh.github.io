@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>
    
-    Swift's enum as a DataSource state machine -
+    Swift's enum as a data source state machine -
    
    Code Coverage
   </title>
@@ -25,11 +25,7 @@
 </head>
 <body>
   <header style="background-image: url(/images/featured/highvoltage.jpg);">
-  
-    <a href="http://flickr.com/photos/_boris/311189091" title="Background image: creative commons licensed (BY-NC-SA) flickr photo by _boris" class="creative-commons"></a>
-  
-  <div class="container post-container">
-    <ul class="icons">
+  <ul class="icons">
     <li>
        <a href="/" title="Home">
             <span class="fa-stack fa-lg">
@@ -56,8 +52,12 @@
     </li>
 </ul>
 
+  
+    <a href="http://flickr.com/photos/_boris/311189091" title="Background image: creative commons licensed (BY-NC-SA) flickr photo by _boris" class="creative-commons"></a>
+  
+  <div class="container post-container">
     <div class="inner-container">
-      <h1>Swift's enum as a DataSource state machine</h1>
+      <h1>Swift's enum as a data source state machine</h1>
       <ul class="meta">
         <li>
           <span>
@@ -65,12 +65,12 @@
           </span>
           13 Feb 2015
         </li>
-        <li>
+        <!-- <li>
           <span>
             Tags
           </span>
           swift, ios, and enum
-        </li>
+        </li> -->
       </ul>
     </div>
     <ul class="pagination">
@@ -161,7 +161,7 @@
             <span class="k">return</span> <span class="p">.</span><span class="n">Loading</span><span class="p">(</span><span class="n">Box</span><span class="p">(</span><span class="nb">nil</span><span class="p">))</span>
         <span class="p">}</span>
     <span class="p">}</span>
-    
+
     <span class="k">func</span> <span class="n">toError</span><span class="p">(</span><span class="nl">error</span><span class="p">:</span><span class="n">E</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataSourceState</span> <span class="p">{</span>
         <span class="k">switch</span> <span class="nb">self</span> <span class="p">{</span>
         <span class="k">case</span> <span class="p">.</span><span class="n">Loading</span><span class="p">(</span><span class="k">let</span> <span class="n">oldData</span><span class="p">)</span><span class="o">:</span>
@@ -170,7 +170,7 @@
             <span class="n">assert</span><span class="p">(</span><span class="nb">false</span><span class="p">,</span> <span class="s">&quot;Invalid state transition to .Error from other than .Loading&quot;</span><span class="p">)</span>
         <span class="p">}</span>
     <span class="p">}</span>
-        
+
     <span class="k">func</span> <span class="n">toReady</span><span class="p">(</span><span class="nl">data</span><span class="p">:</span> <span class="n">D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataSourceState</span> <span class="p">{</span>
         <span class="k">switch</span> <span class="nb">self</span> <span class="p">{</span>
         <span class="k">case</span> <span class="p">.</span><span class="nl">Loading</span><span class="p">:</span>

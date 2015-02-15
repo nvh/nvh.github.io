@@ -420,6 +420,7 @@ a.creative-commons {
   background: url('/images/cc.svg') no-repeat;
   background-size: 20px 20px;
   opacity: 0.5;
+  z-index: 10;
 }
 
 a.creative-commons:hover {
