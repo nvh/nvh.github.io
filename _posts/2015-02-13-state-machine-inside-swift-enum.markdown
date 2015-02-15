@@ -6,7 +6,8 @@ categories: Swift iOS enum
 featured_image: /images/featured/highvoltage.jpg
 photo_attribution: "creative commons licensed (BY-NC-SA) flickr photo by _boris"
 photo_attribution_link: http://flickr.com/photos/_boris/311189091
-excerpt: Last week at dotSwift.io, two of the presentations   contained a version of the following example of using associated values of Swift enumerations…
+excerpt: >
+  Last week at [dotSwift.io](http://www.dotswift.io), two of the presentations contained a version of the following example of using associated values of Swift enumerations:
 ---
 Last week at [dotSwift.io](http://www.dotswift.io), two of the presentations contained a version of the following example of using associated values of Swift enumerations:
 
@@ -82,28 +83,29 @@ Ok, now we can retrieve the data in a better way, but what about associating the
 
 ```swift
 extension State {
-    mutating func toLoading() {
+    func toLoading() -> DataSourceState {
         switch self {
         case .Ready(let oldData):
-            self = .Loading(oldData)
+            let value: D? = oldData.value
+            return .Loading(Box(value))
         default:
-            self = .Loading(nil)
+            return .Loading(Box(nil))
         }
     }
-
-    mutating func toError(error:NSError) {
+    
+    func toError(error:E) -> DataSourceState {
         switch self {
         case .Loading(let oldData):
-            self = .Error(error,oldData)
+            return .Error(Box(error),Box(oldData.value))
         default:
             assert(false, "Invalid state transition to .Error from other than .Loading")
         }
     }
-
-    mutating func toReady(data: D) {
+        
+    func toReady(data: D) -> DataSourceState {
         switch self {
         case .Loading:
-            self = .Ready(data)
+            return .Ready(Box(data))
         default:
             assert(false, "Invalid state transition to .Ready from other than .Loading")
         }
@@ -123,12 +125,12 @@ class DataSource<T> {
   var state: State<[T]> = .Empty
 
   func load() {
-    state.toLoading()
+    state = state.toLoading()
     requestData({ data,error in
       if error != nil {
-        self.state.toError(error)
+        self.state = self.state.toError(error)
       } else {
-        self.state.toReady(data)
+        self.state = self.state.toReady(data)
       }
     })
   }
