@@ -1,7 +1,7 @@
 ---
 layout: post
-title: Use Protocol Constraints Instead Of Extensions
-date: 2016-05-09 22:35
+title: Using Protocol Constraints Instead Of Extending
+date: 2016-05-10 15:15
 categories: Swift networking protocols
 featured_image: /images/featured/networking.jpg
 photo_attribution: "creative commons licensed (BY-NC-ND) flickr photo by Air Force One"
