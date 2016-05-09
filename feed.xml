@@ -5,9 +5,56 @@
     <description></description>
     <link>http://blog.nvh.io/</link>
     <atom:link href="http://blog.nvh.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 16 Feb 2015 00:59:49 +0100</pubDate>
-    <lastBuildDate>Mon, 16 Feb 2015 00:59:49 +0100</lastBuildDate>
+    <pubDate>Tue, 10 May 2016 15:15:52 +0200</pubDate>
+    <lastBuildDate>Tue, 10 May 2016 15:15:52 +0200</lastBuildDate>
     <generator>Jekyll v2.4.0</generator>
+    
+      <item>
+        <title>Using Protocol Constraints Instead Of Extending</title>
+        <description>&lt;p&gt;In his great post “&lt;a href=&quot;http://khanlou.com/2016/05/protocol-oriented-programming/&quot;&gt;Doubling Down on Protocol-Oriented Programming&lt;/a&gt;”, &lt;a href=&quot;http://www.twitter.com/khanlou&quot;&gt;Soroush Khanlou&lt;/a&gt; describes an improvement of his earlier &lt;a href=&quot;http://khanlou.com/2015/06/protocol-oriented-networking/&quot;&gt;Protocol-Oriented Networking&lt;/a&gt; approach. While this is a great technique, I think there’s a small but significant way in which his approach could be improved.&lt;/p&gt;
+
+&lt;p&gt;Let’s look at his definition of the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;SendableRequest&lt;/span&gt;&lt;/code&gt; protocol:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;protocol&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;SendableRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ConstructableRequest&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This inheritance enforces that every &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;SendableRequest&lt;/span&gt;&lt;/code&gt; should also be a &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;ConstructableRequest&lt;/span&gt;&lt;/code&gt;. But what if we don’t care about the request being constructable, but want to take advantage of the handy &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;ResultParsing&lt;/span&gt;&lt;/code&gt; functionality described in the second half of his post?&lt;/p&gt;
+
+&lt;p&gt;With the current implementation, you’re out of luck. You have to implement &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;buildRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt; (or use it’s default implementation) if you want to conform to &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;SendableRequest&lt;/span&gt;&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Luckily there’s a good solution for this: by defining &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;SendableRequest&lt;/span&gt;&lt;/code&gt; without inheritance and adding a constraint to the extension:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;protocol&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SendableRequest&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sendRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;success&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;success&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;failure&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ErrorType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;extension&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SendableRequest&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;where&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;Self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ConstructableRequest&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sendRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;success&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;success&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;failure&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ErrorType&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// send the request&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// parse the result&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// fire the blocks on success and failure&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The key part here is the restriction of the extension:&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-swift&quot;&gt;&lt;span class=&quot;k&quot;&gt;where&lt;/span&gt; &lt;span class=&quot;nl&quot;&gt;Self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ConstructableRequest&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;This defines a constraint on the protocol extension, such that &lt;em&gt;if&lt;/em&gt; your implementation conforms to both &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;SendableRequest&lt;/span&gt;&lt;/code&gt; &lt;em&gt;and&lt;/em&gt; &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;ConstructableRequest&lt;/span&gt;&lt;/code&gt;, the default implementation defined by the extension is available. Because this extension is limited to the conformance of both protocols, it’s possible to use the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;buildRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt; function inside &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;sendRequest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/code&gt;, even though the &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;SendableRequest&lt;/span&gt;&lt;/code&gt; protocol doesn’t specify that method itself. However, it now has become possible to conform to &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;SendableRequest&lt;/span&gt;&lt;/code&gt; without implementing &lt;code class=&quot;highlight language-swift&quot;&gt;&lt;span class=&quot;n&quot;&gt;ConstructableRequest&lt;/span&gt;&lt;/code&gt;’s method.&lt;/p&gt;
+
+&lt;p&gt;This solution improves the composability and reusability of protocols and their extensions, making it easier to use only parts of a framework or implementation, and enforces you to think about the separate concerns different protocols should have.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 10 May 2016 15:15:00 +0200</pubDate>
+        <link>http://blog.nvh.io/2016/05/10/using-protocol-constraints-instead-of-extending.html</link>
+        <guid isPermaLink="true">http://blog.nvh.io/2016/05/10/using-protocol-constraints-instead-of-extending.html</guid>
+        
+        
+        <category>swift</category>
+        
+        <category>networking</category>
+        
+        <category>protocols</category>
+        
+      </item>
     
       <item>
         <title>Swift&#39;s enum as a data source state machine</title>

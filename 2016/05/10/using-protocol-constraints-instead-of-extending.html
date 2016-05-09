@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>
+   
+    Using Protocol Constraints Instead Of Extending -
+   
+   Code Coverage
+  </title>
+  <meta name="viewport" content="width=device-width">
+
+  <!-- syntax highlighting CSS -->
+  <link rel="stylesheet" href="/css/syntax.css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css">
+  <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+  <!-- Fonts -->
+  <link href='http://fonts.googleapis.com/css?family=Bitter:400,700,400italic|Open+Sans:400italic,600italic,400,600' rel='stylesheet' type='text/css'>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-30896002-1', 'auto');
+    ga('send', 'pageview');
+  </script>
+</head>
+<body>
+  <header style="background-image: url(/images/featured/networking.jpg);">
+  <div class="container post-container">
+  <ul class="icons">
+    <li>
+       <a href="/" title="Home">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-home fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href="http://twitter.com/nvh" title="Twitter">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+    <li>
+        <a href="http://github.com/nvh" title="GitHub">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+            </span>
+        </a>
+    </li>
+</ul>
+
+  
+    <a href="https://flickr.com/photos/airforceone/3035915842" title="Background image: creative commons licensed (BY-NC-ND) flickr photo by Air Force One" class="creative-commons"></a>
+  
+    <div class="inner-container">
+      <h1>Using Protocol Constraints Instead Of Extending</h1>
+      <ul class="meta">
+        <li>
+          <span>
+            Published
+          </span>
+          10 May 2016
+        </li>
+        <!-- <li>
+          <span>
+            Tags
+          </span>
+          swift, networking, and protocols
+        </li> -->
+      </ul>
+    </div>
+    <ul class="pagination">
+      
+        <li class="previous">
+          <a href="/2015/02/13/state-machine-inside-swift-enum.html">
+            Previous
+          </a>
+        </li>
+      
+      
+    </ul>
+  </div>
+</header>
+<article>
+  <div class="container">
+    <p>In his great post “<a href="http://khanlou.com/2016/05/protocol-oriented-programming/">Doubling Down on Protocol-Oriented Programming</a>”, <a href="http://www.twitter.com/khanlou">Soroush Khanlou</a> describes an improvement of his earlier <a href="http://khanlou.com/2015/06/protocol-oriented-networking/">Protocol-Oriented Networking</a> approach. While this is a great technique, I think there’s a small but significant way in which his approach could be improved.</p>
+
+<p>Let’s look at his definition of the <code class="highlight language-swift"><span class="n">SendableRequest</span></code> protocol:</p>
+
+<div class="highlight"><pre><code class="language-swift"><span class="k">protocol</span> <span class="nl">SendableRequest</span><span class="p">:</span> <span class="n">ConstructableRequest</span> <span class="p">{</span> <span class="p">}</span></code></pre></div>
+
+<p>This inheritance enforces that every <code class="highlight language-swift"><span class="n">SendableRequest</span></code> should also be a <code class="highlight language-swift"><span class="n">ConstructableRequest</span></code>. But what if we don’t care about the request being constructable, but want to take advantage of the handy <code class="highlight language-swift"><span class="n">ResultParsing</span></code> functionality described in the second half of his post?</p>
+
+<p>With the current implementation, you’re out of luck. You have to implement <code class="highlight language-swift"><span class="n">buildRequest</span><span class="p">()</span></code> (or use it’s default implementation) if you want to conform to <code class="highlight language-swift"><span class="n">SendableRequest</span></code>.</p>
+
+<p>Luckily there’s a good solution for this: by defining <code class="highlight language-swift"><span class="n">SendableRequest</span></code> without inheritance and adding a constraint to the extension:</p>
+
+<div class="highlight"><pre><code class="language-swift"><span class="k">protocol</span> <span class="n">SendableRequest</span> <span class="p">{</span>
+	<span class="k">func</span> <span class="n">sendRequest</span><span class="p">(</span><span class="n">success</span> <span class="nl">success</span><span class="p">:</span> <span class="p">(</span><span class="nl">string</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(),</span> <span class="nl">failure</span><span class="p">:</span> <span class="p">(</span><span class="nl">error</span><span class="p">:</span> <span class="n">ErrorType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">())</span>
+<span class="p">}</span>
+
+<span class="k">extension</span> <span class="n">SendableRequest</span> <span class="k">where</span> <span class="nl">Self</span><span class="p">:</span> <span class="n">ConstructableRequest</span> <span class="p">{</span>
+    <span class="k">func</span> <span class="n">sendRequest</span><span class="p">(</span><span class="n">success</span> <span class="nl">success</span><span class="p">:</span> <span class="p">(</span><span class="nl">string</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(),</span> <span class="nl">failure</span><span class="p">:</span> <span class="p">(</span><span class="nl">error</span><span class="p">:</span> <span class="n">ErrorType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">())</span> <span class="p">{</span>
+        <span class="c1">// send the request</span>
+        <span class="c1">// parse the result</span>
+        <span class="c1">// fire the blocks on success and failure</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+
+<p>The key part here is the restriction of the extension:</p>
+
+<div class="highlight"><pre><code class="language-swift"><span class="k">where</span> <span class="nl">Self</span><span class="p">:</span> <span class="n">ConstructableRequest</span></code></pre></div>
+
+<p>This defines a constraint on the protocol extension, such that <em>if</em> your implementation conforms to both <code class="highlight language-swift"><span class="n">SendableRequest</span></code> <em>and</em> <code class="highlight language-swift"><span class="n">ConstructableRequest</span></code>, the default implementation defined by the extension is available. Because this extension is limited to the conformance of both protocols, it’s possible to use the <code class="highlight language-swift"><span class="n">buildRequest</span><span class="p">()</span></code> function inside <code class="highlight language-swift"><span class="n">sendRequest</span><span class="p">()</span></code>, even though the <code class="highlight language-swift"><span class="n">SendableRequest</span></code> protocol doesn’t specify that method itself. However, it now has become possible to conform to <code class="highlight language-swift"><span class="n">SendableRequest</span></code> without implementing <code class="highlight language-swift"><span class="n">ConstructableRequest</span></code>’s method.</p>
+
+<p>This solution improves the composability and reusability of protocols and their extensions, making it easier to use only parts of a framework or implementation, and enforces you to think about the separate concerns different protocols should have.</p>
+
+  </div>
+</article>
+
+</body>
+</html>
