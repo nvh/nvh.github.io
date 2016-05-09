@@ -17,11 +17,11 @@ Let's look at his definition of the `SendableRequest` protocol:
 protocol SendableRequest: ConstructableRequest { }
 ```
 
-This inheritance enforces that every `SendableRequest` should also be a `ConstructableRequest`. But what if we don’t care about the request being constructable, but do want to take advantage of the handy `ResultParsing` functionality described in the second half of the post?
+This inheritance enforces that every `SendableRequest` should also be a `ConstructableRequest`. But what if we don’t care about the request being constructable, but want to take advantage of the handy `ResultParsing` functionality described in the second half of his post?
 
 With the current implementation, you’re out of luck. You have to implement `buildRequest()` (or use it’s default implementation) if you want to conform to `SendableRequest`.
 
-Luckily there’s a good solution for this: by defining `SendableRequest` without inheritance and adding the restriction to the extension:
+Luckily there’s a good solution for this: by defining `SendableRequest` without inheritance and adding a constraint to the extension:
 
 ```
 protocol SendableRequest {
@@ -43,6 +43,6 @@ The key part here is the restriction of the extension:
 where Self: ConstructableRequest
 ```
 
-This defines a constraint on the protocol extension, such that _if_ your implementation conforms to both `SendableRequest` _and_ `ConstructableRequest`, the default implementation in the extension is available. Because this extension is limited to the conformance of both protocols, it’s possible to use the `buildRequest()` function inside `sendRequest()`, even though the `SendableRequest` protocol doesn’t enforce it itself. However, it's perfectly possible conform to `SendableRequest` without implementing `ConstructableRequest` methods.
+This defines a constraint on the protocol extension, such that _if_ your implementation conforms to both `SendableRequest` _and_ `ConstructableRequest`, the default implementation defined by the extension is available. Because this extension is limited to the conformance of both protocols, it’s possible to use the `buildRequest()` function inside `sendRequest()`, even though the `SendableRequest` protocol doesn’t specify that method itself. However, it now has become possible to conform to `SendableRequest` without implementing `ConstructableRequest`'s method.
 
-This solution improves the composability and reusability of protocols and their extensions. This makes it easier to use only parts of a framework or implementation, and enforces you to think about the separate concerns different protocols should have.
+This solution improves the composability and reusability of protocols and their extensions, making it easier to use only parts of a framework or implementation, and enforces you to think about the separate concerns different protocols should have.
