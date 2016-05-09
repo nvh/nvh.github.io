@@ -426,3 +426,7 @@ a.creative-commons {
 a.creative-commons:hover {
   opacity: 1;
 }
+
+em {
+  font-style: italic;
+}
